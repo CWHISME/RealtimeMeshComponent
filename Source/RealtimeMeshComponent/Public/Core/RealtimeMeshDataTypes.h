@@ -513,7 +513,7 @@ namespace RealtimeMesh
 
 		FString ToString() const
 		{
-			return FString::Printf(TEXT("Type=%d NumDatums=%d"), Type, NumDatums);
+			return FString::Printf(TEXT("Type=%d NumDatums=%d"), static_cast<int32>(Type), static_cast<int32>(NumDatums)); // 5.9 格式串检查不接受枚举与 uint8
 		}
 
 		friend FORCEINLINE uint32 GetTypeHash(const FRealtimeMeshElementType& Element)

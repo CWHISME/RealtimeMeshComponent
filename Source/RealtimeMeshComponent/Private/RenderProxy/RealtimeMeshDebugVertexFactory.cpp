@@ -72,7 +72,8 @@ namespace RealtimeMesh
 		}
 
 		// Must match the scene proxy's bVFRequiresPrimitiveUniformBuffer decision or GPUScene binding breaks.
-		const bool bVFSupportsPrimitiveSceneData = Parameters.VertexFactoryType->SupportsPrimitiveIdStream() && UseGPUScene(Parameters.Platform, GetMaxSupportedFeatureLevel(Parameters.Platform));
+		// 5.9：SupportsPrimitiveIdStream 已移除，GPUScene 支持改由 SupportsGPUScene(FeatureLevel) 判定
+		const bool bVFSupportsPrimitiveSceneData = Parameters.VertexFactoryType->SupportsGPUScene(GetMaxSupportedFeatureLevel(Parameters.Platform));
 		OutEnvironment.SetDefine(TEXT("VF_SUPPORTS_PRIMITIVE_SCENE_DATA"), bVFSupportsPrimitiveSceneData);
 
 		OutEnvironment.SetDefine(TEXT("REALTIME_MESH_DEBUG_VERTEX_FACTORY"), 1);
@@ -86,8 +87,7 @@ namespace RealtimeMesh
 
 	void FRealtimeMeshDebugVertexFactory::ValidateCompiledResult(const FVertexFactoryType* Type, EShaderPlatform Platform, const FShaderParameterMap& ParameterMap, TArray<FString>& OutErrors)
 	{
-		if (Type->SupportsPrimitiveIdStream() 
-			&& UseGPUScene(Platform, GetMaxSupportedFeatureLevel(Platform)) 
+		if (Type->SupportsGPUScene(GetMaxSupportedFeatureLevel(Platform))
 			&& !IsMobilePlatform(Platform) // On mobile VS may use PrimitiveUB while GPUScene is enabled
 			&& ParameterMap.ContainsParameterAllocation(FPrimitiveUniformShaderParameters::FTypeInfo::GetStructMetadata()->GetShaderVariableName()))
 		{
@@ -182,7 +182,7 @@ namespace RealtimeMesh
 		}
 
 		// Primitive ID stream must match the scene proxy's bVFRequiresPrimitiveUniformBuffer setting.
-		if (GetType()->SupportsPrimitiveIdStream() && UseGPUScene(GMaxRHIShaderPlatform, GetFeatureLevel()))
+		if (GetType()->SupportsGPUScene(GetFeatureLevel()))
 		{
 			AddPrimitiveIdStreamElement(EVertexInputStreamType::Default, Elements, 13, 13);
 		}
@@ -320,6 +320,6 @@ IMPLEMENT_VERTEX_FACTORY_TYPE(FRealtimeMeshDebugVertexFactory, "/Plugin/Realtime
 	EVertexFactoryFlags::UsedWithMaterials
 	| EVertexFactoryFlags::SupportsDynamicLighting
 	| EVertexFactoryFlags::SupportsPositionOnly
-	| EVertexFactoryFlags::SupportsPrimitiveIdStream
+	| EVertexFactoryFlags::SupportsGPUScene
 	| EVertexFactoryFlags::SupportsManualVertexFetch
 );

@@ -464,8 +464,8 @@ namespace RealtimeMesh
 			OutEnvironment.SetDefineIfUnset(TEXT("MANUAL_VERTEX_FETCH"), TEXT("1"));
 		}
 		
-		const bool bVFSupportsPrimtiveSceneData = Parameters.VertexFactoryType->SupportsPrimitiveIdStream() && UseGPUScene(
-			Parameters.Platform, GetMaxSupportedFeatureLevel(Parameters.Platform));
+		// 5.9：SupportsPrimitiveIdStream 已移除，GPUScene 支持改由 SupportsGPUScene(FeatureLevel) 判定
+		const bool bVFSupportsPrimtiveSceneData = Parameters.VertexFactoryType->SupportsGPUScene(GetMaxSupportedFeatureLevel(Parameters.Platform));
 		OutEnvironment.SetDefine(TEXT("VF_SUPPORTS_PRIMITIVE_SCENE_DATA"), bVFSupportsPrimtiveSceneData);
 		OutEnvironment.SetDefine(TEXT("RAY_TRACING_DYNAMIC_MESH_IN_LOCAL_SPACE"), TEXT("1"));
 
@@ -478,8 +478,7 @@ namespace RealtimeMesh
 	void FRealtimeMeshLocalVertexFactory::ValidateCompiledResult(const FVertexFactoryType* Type, EShaderPlatform Platform, const FShaderParameterMap& ParameterMap,
 	                                                             TArray<FString>& OutErrors)
 	{
-		if (Type->SupportsPrimitiveIdStream()
-			&& UseGPUScene(Platform, GetMaxSupportedFeatureLevel(Platform))
+		if (Type->SupportsGPUScene(GetMaxSupportedFeatureLevel(Platform))
 			&& !IsMobilePlatform(Platform) // On mobile VS may use PrimtiveUB while GPUScene is enabled
 			&& ParameterMap.ContainsParameterAllocation(FPrimitiveUniformShaderParameters::FTypeInfo::GetStructMetadata()->GetShaderVariableName()))
 		{
@@ -736,7 +735,7 @@ IMPLEMENT_VERTEX_FACTORY_TYPE(FRealtimeMeshLocalVertexFactory, "/Engine/Private/
                               | EVertexFactoryFlags::SupportsPrecisePrevWorldPos
                               | EVertexFactoryFlags::SupportsPositionOnly
                               | EVertexFactoryFlags::SupportsCachingMeshDrawCommands
-                              | EVertexFactoryFlags::SupportsPrimitiveIdStream
+                              | EVertexFactoryFlags::SupportsGPUScene
 							  | EVertexFactoryFlags::SupportsRayTracing
                               | EVertexFactoryFlags::SupportsRayTracingDynamicGeometry
                               | EVertexFactoryFlags::SupportsManualVertexFetch

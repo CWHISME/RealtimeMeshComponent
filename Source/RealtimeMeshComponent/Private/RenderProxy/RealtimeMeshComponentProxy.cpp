@@ -101,6 +101,9 @@ namespace RealtimeMesh
 		bVFRequiresPrimitiveUniformBuffer = !UseGPUScene(GMaxRHIShaderPlatform, FeatureLevel);
 		bStaticElementsAlwaysUseProxyPrimitiveUniformBuffer = true;
 		bVerifyUsedMaterials = false;
+		// 5.9 的 RVT 只遍历 WritesVirtualTexture() 为真的 primitive（bWritesRuntimeVirtualTexture），
+		// 不置位时下面的 RVT mesh batch 永远不会被收集
+		bSupportsRuntimeVirtualTexture = true;
 		
 		// If any section carries a PositionPrev stream the geometry deforms with a static transform, so
 		// force velocity output (motion vectors) — otherwise TAA/TSR ghosts the moving surface.
